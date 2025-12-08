@@ -2,12 +2,14 @@ import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { Character, ApiResponse, SearchFilters } from '@/types/types'
 import { CharacterApiService } from '@/services'
+import { useFavoritesStore } from './favorites-store'
 
 interface Filters {
   name: string
   status: string
   species: string
   gender: string
+  favoritesOnly: boolean
   page: number
 }
 
@@ -42,6 +44,7 @@ export const useCharacterStore = create<CharacterState>()((set, get) => ({
     status: '',
     species: '',
     gender: '',
+    favoritesOnly: false,
     page: 1
   },
   totalPages: 1,
@@ -67,6 +70,56 @@ export const useCharacterStore = create<CharacterState>()((set, get) => ({
     set({ loading: true, error: null })
     
     try {
+      // Handle favorites filter separately - fetch all favorites by ID
+      if (filters.favoritesOnly) {
+        const favoritesState = useFavoritesStore.getState()
+        
+        if (favoritesState.favorites.length === 0) {
+          set({
+            characters: [],
+            totalPages: 0,
+            hasNextPage: false,
+            loading: false
+          })
+          return
+        }
+        
+        // Fetch all favorite characters by their IDs
+        const favoriteCharacters = await CharacterApiService.getMultipleCharacters(favoritesState.favorites)
+        
+        // Apply other filters to favorites if needed
+        let filteredFavorites = favoriteCharacters
+        if (filters.name) {
+          filteredFavorites = filteredFavorites.filter(char => 
+            char.name.toLowerCase().includes(filters.name.toLowerCase())
+          )
+        }
+        if (filters.status) {
+          filteredFavorites = filteredFavorites.filter(char => 
+            char.status.toLowerCase() === filters.status.toLowerCase()
+          )
+        }
+        if (filters.species) {
+          filteredFavorites = filteredFavorites.filter(char => 
+            char.species.toLowerCase() === filters.species.toLowerCase()
+          )
+        }
+        if (filters.gender) {
+          filteredFavorites = filteredFavorites.filter(char => 
+            char.gender.toLowerCase() === filters.gender.toLowerCase()
+          )
+        }
+        
+        set({
+          characters: filteredFavorites,
+          totalPages: filteredFavorites.length > 0 ? 1 : 0,
+          hasNextPage: false,
+          loading: false
+        })
+        return
+      }
+      
+      // Normal API call for non-favorites
       const searchFilters: SearchFilters = {
         page: filters.page,
         ...(filters.name && { name: filters.name }),
@@ -75,6 +128,7 @@ export const useCharacterStore = create<CharacterState>()((set, get) => ({
         ...(filters.gender && { gender: filters.gender })
       }
       const response = await CharacterApiService.getCharacters(searchFilters)
+      
       set({
         characters: response.results,
         totalPages: response.info.pages,

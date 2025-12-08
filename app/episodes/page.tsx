@@ -2,10 +2,10 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { ArrowLeft, Calendar, Users, Tv } from 'lucide-react'
+import { Calendar, Users, Tv } from 'lucide-react'
 import { Episode, ApiResponse } from '@/types/types'
 import { EpisodeApiService } from '@/services'
-import { ThemeToggle } from '@/components/layout/theme-toggle'
+import { PageHeader } from '@/components/layout/page-header'
 
 export default function Episodes() {
   const [episodes, setEpisodes] = useState<Episode[]>([])
@@ -79,26 +79,11 @@ export default function Episodes() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <header className="mb-8">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <Link 
-                href="/"
-                className="flex items-center gap-2 mb-4 transition-all duration-300 hover:scale-105 dark:hover:text-glow"
-                style={{ color: 'var(--foreground-muted)' }}
-              >
-                <ArrowLeft className="h-5 w-5" />
-                Back to Characters
-              </Link>
-              <h1 className="text-4xl md:text-5xl font-bold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
-                <Tv className="inline h-10 w-10 mr-3" style={{ color: 'var(--primary)' }} />
-                Episodes
-                <span className="block text-2xl md:text-3xl font-light text-primary dark:text-glow" style={{ color: 'var(--primary)' }}>
-                  Complete Series Guide
-                </span>
-              </h1>
-            </div>
-            <ThemeToggle />
-          </div>
+          <PageHeader
+            title="Episodes"
+            subtitle="Complete Series Guide"
+            icon={<Tv className="h-10 w-10" />}
+          />
           
           {/* Search and Filters */}
           <div className="flex flex-col lg:flex-row items-center justify-center gap-4 mt-8">

@@ -25,6 +25,19 @@ export const CharacterCard = React.memo(({ character }: CharacterCardProps) => {
   const locationStyle = useMemo(() => ({
     color: 'var(--foreground-subtle)'
   }), [])
+
+  const getHoverStyles = () => {
+    switch (character.status) {
+      case 'Alive':
+        return 'group-hover:bg-emerald-400/10 dark:group-hover:bg-emerald-400/20 light:group-hover:bg-emerald-600/5'
+      case 'Dead':
+        return 'group-hover:bg-red-400/10 dark:group-hover:bg-red-400/20 light:group-hover:bg-red-600/5'
+      case 'unknown':
+        return 'group-hover:bg-orange-400/10 dark:group-hover:bg-orange-400/20 light:group-hover:bg-orange-600/5'
+      default:
+        return 'group-hover:bg-emerald-400/10 dark:group-hover:bg-emerald-400/20 light:group-hover:bg-emerald-600/5'
+    }
+  }
   return (
     <Link href={`/character/${character.id}`}>
       <div className="group relative glow-card rounded-lg overflow-hidden transform hover:scale-[1.02] transition-all duration-300 cursor-pointer" style={cardStyle}>
@@ -40,7 +53,7 @@ export const CharacterCard = React.memo(({ character }: CharacterCardProps) => {
           />
           
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent dark:from-slate-900/90 light:from-slate-900/60" />
-          <div className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-400/10 dark:group-hover:bg-emerald-400/20 light:group-hover:bg-emerald-600/5 transition-colors duration-300" />
+          <div className={`absolute inset-0 bg-transparent transition-colors duration-300 ${getHoverStyles()}`} />
           
           <div className="absolute top-3 left-3 z-10">
             <FavoriteButton characterId={character.id} />

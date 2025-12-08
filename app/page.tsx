@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect } from 'react';
-import Link from 'next/link';
+import { useEffect, useState } from 'react';
 import { useShallow } from 'zustand/react/shallow';
+import { Users } from 'lucide-react';
 import { useCharacterStore } from '@/store/character-store';
+import { useDebounce } from '@/hooks/useDebounce';
 import { CharacterCard } from '@/components/character/character-card';
 import { SearchBar } from '@/components/common/search-bar';
 import { DropdownFilter } from '@/components/common/dropdown-filter';
 import { Pagination } from '@/components/common/pagination';
 import { CharacterGridSkeleton } from '@/components/common/loading-skeleton';
-import { ThemeToggle } from '@/components/layout/theme-toggle';
+import { PageHeader } from '@/components/layout/page-header';
 
 export default function Home() {
   const {
@@ -21,24 +22,27 @@ export default function Home() {
     hasNextPage,
     fetchCharacters,
     setFilters,
-  } = useCharacterStore(useShallow((state) => ({
-    characters: state.characters,
-    loading: state.loading,
-    error: state.error,
-    filters: state.filters,
-    totalPages: state.totalPages,
-    hasNextPage: state.hasNextPage,
-    fetchCharacters: state.fetchCharacters,
-    setFilters: state.setFilters,
-  })));
+  } = useCharacterStore(
+    useShallow((state) => ({
+      characters: state.characters,
+      loading: state.loading,
+      error: state.error,
+      filters: state.filters,
+      totalPages: state.totalPages,
+      hasNextPage: state.hasNextPage,
+      fetchCharacters: state.fetchCharacters,
+      setFilters: state.setFilters,
+    }))
+  );
 
   // Filter options
   const statusOptions = [
     { value: '', label: 'All Status' },
     { value: 'alive', label: 'Alive' },
     { value: 'dead', label: 'Dead' },
-    { value: 'unknown', label: 'Unknown' }
+    { value: 'unknown', label: 'Unknown' },
   ];
+
 
   const speciesOptions = [
     { value: '', label: 'All Species' },
@@ -48,7 +52,7 @@ export default function Home() {
     { value: 'Robot', label: 'Robot' },
     { value: 'Animal', label: 'Animal' },
     { value: 'Cronenberg', label: 'Cronenberg' },
-    { value: 'Disease', label: 'Disease' }
+    { value: 'Disease', label: 'Disease' },
   ];
 
   const genderOptions = [
@@ -56,16 +60,29 @@ export default function Home() {
     { value: 'Female', label: 'Female' },
     { value: 'Male', label: 'Male' },
     { value: 'Genderless', label: 'Genderless' },
-    { value: 'unknown', label: 'Unknown' }
+    { value: 'unknown', label: 'Unknown' },
   ];
+
+  // Local search state for immediate UI updates
+  const [searchQuery, setSearchQuery] = useState(filters.name);
+
+  // Debounced search value
+  const debouncedSearchQuery = useDebounce(searchQuery, 150);
+
+  // Update filters when debounced search changes
+  useEffect(() => {
+    if (debouncedSearchQuery !== filters.name) {
+      setFilters({ name: debouncedSearchQuery, page: 1 });
+    }
+  }, [debouncedSearchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Fetch characters on mount and when filters change
   useEffect(() => {
     fetchCharacters();
-  }, [filters.name, filters.status, filters.species, filters.gender, filters.page]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSearch = (query: string) => {
-    setFilters({ name: query, page: 1 });
+    setSearchQuery(query); // Update local state immediately for UI responsiveness
   };
 
   const handleFilter = (status: string) => {
@@ -80,6 +97,10 @@ export default function Home() {
     setFilters({ gender, page: 1 });
   };
 
+  const handleFavoritesToggle = () => {
+    setFilters({ favoritesOnly: !filters.favoritesOnly, page: 1 });
+  };
+
   const handleNextPage = () => {
     setFilters({ page: filters.page + 1 });
   };
@@ -91,7 +112,14 @@ export default function Home() {
   };
 
   const handleResetFilters = () => {
-    setFilters({ name: '', status: '', species: '', gender: '', page: 1 });
+    setFilters({
+      name: '',
+      status: '',
+      species: '',
+      gender: '',
+      favoritesOnly: false,
+      page: 1,
+    });
   };
 
   return (
@@ -99,91 +127,94 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <header className="mb-8">
-          <div className="flex justify-between items-start mb-6">
-            <div>
-              <h1
-                className="text-4xl md:text-5xl font-bold transition-colors duration-300"
-                style={{ color: 'var(--foreground)' }}
-              >
-                Rick & Morty
-                <span
-                  className="block text-2xl md:text-3xl font-light text-primary dark:text-glow"
-                  style={{ color: 'var(--primary)' }}
-                >
-                  Character Explorer
-                </span>
-              </h1>
-              <div className="flex gap-4 mt-4">
-                <Link
-                  href="/episodes"
-                  className="px-4 py-2 rounded-lg border transition-all duration-300 hover:scale-105 dark:hover:text-glow"
-                  style={{
-                    borderColor: 'var(--card-border)',
-                    backgroundColor: 'var(--card-bg)',
-                    color: 'var(--foreground-muted)',
-                  }}
-                >
-                  Browse Episodes
-                </Link>
-              </div>
-            </div>
-            <ThemeToggle />
-          </div>
+          <PageHeader
+            title="Characters"
+            subtitle="Explore the Multiverse"
+            icon={<Users className="h-10 w-10" />}
+          />
 
           {/* Search and Filters */}
-          <div className="space-y-6 mt-8">
-            {/* Search Bar */}
-            <div className="flex justify-center">
-              <SearchBar
-                value={filters.name}
-                onChange={handleSearch}
-                placeholder="Search characters..."
-              />
-            </div>
-            
-            {/* Filter Dropdowns */}
-            <div className="flex flex-wrap items-center justify-center gap-4">
-              <DropdownFilter
-                label="Status"
-                activeFilter={filters.status}
-                options={statusOptions}
-                onFilterChange={handleFilter}
-                colorTheme="green"
-              />
-              
-              <DropdownFilter
-                label="Species"
-                activeFilter={filters.species}
-                options={speciesOptions}
-                onFilterChange={handleSpeciesFilter}
-                colorTheme="blue"
-              />
-              
-              <DropdownFilter
-                label="Gender"
-                activeFilter={filters.gender}
-                options={genderOptions}
-                onFilterChange={handleGenderFilter}
-                colorTheme="purple"
-              />
-            </div>
+          <div className="mt-4">
+            {/* Compact Filter Bar */}
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-3">
+              {/* Search Bar */}
+              <div className="lg:mr-4">
+                <SearchBar
+                  value={searchQuery}
+                  onChange={handleSearch}
+                  placeholder="Search characters..."
+                />
+              </div>
 
-            {/* Clear Filters Button */}
-            {(filters.name || filters.status || filters.species || filters.gender) && (
-              <div className="flex justify-center">
+              {/* Filter Dropdowns */}
+              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
+                <DropdownFilter
+                  label="Status"
+                  activeFilter={filters.status}
+                  options={statusOptions}
+                  onFilterChange={handleFilter}
+                  colorTheme="green"
+                />
+
+                <DropdownFilter
+                  label="Species"
+                  activeFilter={filters.species}
+                  options={speciesOptions}
+                  onFilterChange={handleSpeciesFilter}
+                  colorTheme="blue"
+                />
+
+                <DropdownFilter
+                  label="Gender"
+                  activeFilter={filters.gender}
+                  options={genderOptions}
+                  onFilterChange={handleGenderFilter}
+                  colorTheme="purple"
+                />
+
+                {/* Favorites Toggle Button */}
                 <button
-                  onClick={handleResetFilters}
-                  className="px-6 py-3 text-sm rounded-lg border transition-all duration-300 hover:scale-105 dark:hover:text-glow light:hover:shadow-md"
+                  onClick={handleFavoritesToggle}
+                  className={`
+                    px-3 py-2 rounded-lg border text-xs font-medium transition-all duration-300
+                    flex items-center gap-2
+                    ${filters.favoritesOnly
+                      ? 'transform scale-105 shadow-lg text-white font-semibold'
+                      : 'hover:scale-102 hover:shadow-md'
+                    }
+                  `}
                   style={{
-                    color: 'var(--foreground-muted)',
-                    borderColor: 'var(--card-border)',
-                    backgroundColor: 'var(--card-bg)',
+                    backgroundColor: filters.favoritesOnly ? 'var(--primary)' : 'var(--card-bg)',
+                    borderColor: filters.favoritesOnly ? 'var(--primary)' : 'var(--card-border)',
+                    color: filters.favoritesOnly ? 'white' : 'var(--foreground)'
                   }}
                 >
-                  Clear All Filters
+                  <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                  Favorites
                 </button>
+
+                {/* Clear Filters Button */}
+                {(filters.name ||
+                  filters.status ||
+                  filters.species ||
+                  filters.gender ||
+                  filters.favoritesOnly) && (
+                  <button
+                    onClick={handleResetFilters}
+                    className="px-4 py-2 text-xs rounded-md border transition-all duration-300 hover:scale-105 dark:hover:text-glow light:hover:shadow-md"
+                    style={{
+                      color: 'var(--foreground-muted)',
+                      borderColor: 'var(--card-border)',
+                      backgroundColor: 'var(--card-bg)',
+                    }}
+                  >
+                    Clear
+                  </button>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </header>
 
@@ -223,14 +254,17 @@ export default function Home() {
               ))}
             </div>
 
-            <Pagination
-              currentPage={filters.page}
-              totalPages={totalPages}
-              hasNextPage={hasNextPage}
-              onPrevious={handlePrevPage}
-              onNext={handleNextPage}
-              loading={loading}
-            />
+            {/* Only show pagination when not filtering favorites */}
+            {!filters.favoritesOnly && (
+              <Pagination
+                currentPage={filters.page}
+                totalPages={totalPages}
+                hasNextPage={hasNextPage}
+                onPrevious={handlePrevPage}
+                onNext={handleNextPage}
+                loading={loading}
+              />
+            )}
           </div>
         )}
 

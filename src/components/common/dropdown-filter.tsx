@@ -79,7 +79,7 @@ export function DropdownFilter({
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`
-          min-w-[140px] px-4 py-2.5 rounded-lg border transition-all duration-300
+          min-w-[120px] px-3 py-2 rounded-lg border transition-all duration-300
           flex items-center justify-between gap-2
           ${isOpen 
             ? 'transform scale-105 shadow-lg' 
@@ -92,11 +92,11 @@ export function DropdownFilter({
           color: activeFilter ? colors.primary : 'var(--foreground)'
         }}
       >
-        <span className="text-sm font-medium truncate">
+        <span className="text-xs font-medium truncate">
           {getActiveLabel()}
         </span>
         <svg 
-          className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+          className={`w-3 h-3 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
           fill="none" 
           stroke="currentColor" 
           viewBox="0 0 24 24"
@@ -108,7 +108,7 @@ export function DropdownFilter({
       {/* Dropdown Menu */}
       {isOpen && (
         <div 
-          className="absolute top-full left-0 mt-2 w-full min-w-[200px] rounded-lg border shadow-xl z-50 max-h-60 overflow-y-auto"
+          className="absolute top-full left-0 mt-1 w-full min-w-[180px] rounded-lg border shadow-xl z-50 max-h-48 overflow-y-auto"
           style={{
             backgroundColor: 'var(--card-bg)',
             borderColor: 'var(--card-border)'
@@ -122,7 +122,7 @@ export function DropdownFilter({
                 setIsOpen(false)
               }}
               className={`
-                w-full px-4 py-2.5 text-left text-sm transition-all duration-200
+                w-full px-3 py-2 text-left text-xs transition-all duration-200
                 flex items-center justify-between hover:scale-[1.02]
                 ${activeFilter === option.value
                   ? 'font-semibold'
@@ -136,7 +136,7 @@ export function DropdownFilter({
             >
               <span>{option.label}</span>
               {activeFilter === option.value && (
-                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
                   <path 
                     fillRule="evenodd" 
                     d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" 
