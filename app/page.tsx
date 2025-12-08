@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
+import { useEffect } from 'react';
 import Link from 'next/link';
-import { useShallow } from 'zustand/shallow';
-import { useCharacterStore } from '@/store/store';
+import { useShallow } from 'zustand/react/shallow';
+import { useCharacterStore } from '@/store/character-store';
 import { CharacterCard } from '@/components/character/character-card';
 import { SearchBar } from '@/components/common/search-bar';
-import { FilterButtons } from '@/components/common/filter-buttons';
+import { DropdownFilter } from '@/components/common/dropdown-filter';
 import { Pagination } from '@/components/common/pagination';
 import { CharacterGridSkeleton } from '@/components/common/loading-skeleton';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
@@ -16,47 +16,83 @@ export default function Home() {
     characters,
     loading,
     error,
-    searchQuery,
-    statusFilter,
-    currentPage,
+    filters,
     totalPages,
     hasNextPage,
     fetchCharacters,
-    searchCharacters,
-    filterByStatus,
-    nextPage,
-    prevPage,
-    resetFilters,
-  } = useCharacterStore(
-    useShallow((state) => ({
-      characters: state.characters,
-      loading: state.loading,
-      error: state.error,
-      searchQuery: state.searchQuery,
-      statusFilter: state.statusFilter,
-      currentPage: state.currentPage,
-      totalPages: state.totalPages,
-      hasNextPage: state.hasNextPage,
-      fetchCharacters: state.fetchCharacters,
-      searchCharacters: state.searchCharacters,
-      filterByStatus: state.filterByStatus,
-      nextPage: state.nextPage,
-      prevPage: state.prevPage,
-      resetFilters: state.resetFilters,
-    }))
-  );
+    setFilters,
+  } = useCharacterStore(useShallow((state) => ({
+    characters: state.characters,
+    loading: state.loading,
+    error: state.error,
+    filters: state.filters,
+    totalPages: state.totalPages,
+    hasNextPage: state.hasNextPage,
+    fetchCharacters: state.fetchCharacters,
+    setFilters: state.setFilters,
+  })));
 
+  // Filter options
+  const statusOptions = [
+    { value: '', label: 'All Status' },
+    { value: 'alive', label: 'Alive' },
+    { value: 'dead', label: 'Dead' },
+    { value: 'unknown', label: 'Unknown' }
+  ];
+
+  const speciesOptions = [
+    { value: '', label: 'All Species' },
+    { value: 'Human', label: 'Human' },
+    { value: 'Alien', label: 'Alien' },
+    { value: 'Humanoid', label: 'Humanoid' },
+    { value: 'Robot', label: 'Robot' },
+    { value: 'Animal', label: 'Animal' },
+    { value: 'Cronenberg', label: 'Cronenberg' },
+    { value: 'Disease', label: 'Disease' }
+  ];
+
+  const genderOptions = [
+    { value: '', label: 'All Genders' },
+    { value: 'Female', label: 'Female' },
+    { value: 'Male', label: 'Male' },
+    { value: 'Genderless', label: 'Genderless' },
+    { value: 'unknown', label: 'Unknown' }
+  ];
+
+  // Fetch characters on mount and when filters change
   useEffect(() => {
     fetchCharacters();
-  }, []); // Only run on mount
+  }, [filters.name, filters.status, filters.species, filters.gender, filters.page]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const handleSearch = useCallback((query: string) => {
-    searchCharacters(query);
-  }, [searchCharacters]);
+  const handleSearch = (query: string) => {
+    setFilters({ name: query, page: 1 });
+  };
 
-  const handleFilter = useCallback((status: string) => {
-    filterByStatus(status);
-  }, [filterByStatus]);
+  const handleFilter = (status: string) => {
+    setFilters({ status, page: 1 });
+  };
+
+  const handleSpeciesFilter = (species: string) => {
+    setFilters({ species, page: 1 });
+  };
+
+  const handleGenderFilter = (gender: string) => {
+    setFilters({ gender, page: 1 });
+  };
+
+  const handleNextPage = () => {
+    setFilters({ page: filters.page + 1 });
+  };
+
+  const handlePrevPage = () => {
+    if (filters.page > 1) {
+      setFilters({ page: filters.page - 1 });
+    }
+  };
+
+  const handleResetFilters = () => {
+    setFilters({ name: '', status: '', species: '', gender: '', page: 1 });
+  };
 
   return (
     <div className="min-h-screen transition-colors duration-500">
@@ -95,28 +131,58 @@ export default function Home() {
           </div>
 
           {/* Search and Filters */}
-          <div className="flex flex-col lg:flex-row items-center justify-center gap-4 mt-8">
-            <SearchBar
-              value={searchQuery}
-              onChange={handleSearch}
-              placeholder="Search characters..."
-            />
-            <FilterButtons
-              activeFilter={statusFilter}
-              onFilterChange={handleFilter}
-            />
-            {(searchQuery || statusFilter) && (
-              <button
-                onClick={resetFilters}
-                className="px-4 py-2 text-sm rounded-lg border transition-all duration-300 hover:scale-105 dark:hover:text-glow light:hover:shadow-md"
-                style={{
-                  color: 'var(--foreground-muted)',
-                  borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)',
-                }}
-              >
-                Clear filters
-              </button>
+          <div className="space-y-6 mt-8">
+            {/* Search Bar */}
+            <div className="flex justify-center">
+              <SearchBar
+                value={filters.name}
+                onChange={handleSearch}
+                placeholder="Search characters..."
+              />
+            </div>
+            
+            {/* Filter Dropdowns */}
+            <div className="flex flex-wrap items-center justify-center gap-4">
+              <DropdownFilter
+                label="Status"
+                activeFilter={filters.status}
+                options={statusOptions}
+                onFilterChange={handleFilter}
+                colorTheme="green"
+              />
+              
+              <DropdownFilter
+                label="Species"
+                activeFilter={filters.species}
+                options={speciesOptions}
+                onFilterChange={handleSpeciesFilter}
+                colorTheme="blue"
+              />
+              
+              <DropdownFilter
+                label="Gender"
+                activeFilter={filters.gender}
+                options={genderOptions}
+                onFilterChange={handleGenderFilter}
+                colorTheme="purple"
+              />
+            </div>
+
+            {/* Clear Filters Button */}
+            {(filters.name || filters.status || filters.species || filters.gender) && (
+              <div className="flex justify-center">
+                <button
+                  onClick={handleResetFilters}
+                  className="px-6 py-3 text-sm rounded-lg border transition-all duration-300 hover:scale-105 dark:hover:text-glow light:hover:shadow-md"
+                  style={{
+                    color: 'var(--foreground-muted)',
+                    borderColor: 'var(--card-border)',
+                    backgroundColor: 'var(--card-bg)',
+                  }}
+                >
+                  Clear All Filters
+                </button>
+              </div>
             )}
           </div>
         </header>
@@ -158,11 +224,11 @@ export default function Home() {
             </div>
 
             <Pagination
-              currentPage={currentPage}
+              currentPage={filters.page}
               totalPages={totalPages}
               hasNextPage={hasNextPage}
-              onPrevious={prevPage}
-              onNext={nextPage}
+              onPrevious={handlePrevPage}
+              onNext={handleNextPage}
               loading={loading}
             />
           </div>
@@ -185,7 +251,7 @@ export default function Home() {
                 Try adjusting your search or filter criteria
               </p>
               <button
-                onClick={resetFilters}
+                onClick={handleResetFilters}
                 className="px-4 py-2 text-white rounded-lg transition-all duration-300 hover:scale-105 dark:shadow-lg dark:shadow-emerald-500/50 light:shadow-md"
                 style={{ backgroundColor: 'var(--primary)' }}
               >

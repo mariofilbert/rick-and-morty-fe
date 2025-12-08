@@ -1,5 +1,5 @@
 import { Heart } from 'lucide-react'
-import { useCharacterStore } from '@/store/store'
+import { useFavoritesStore } from '@/store/favorites-store'
 
 interface FavoriteButtonProps {
   characterId: number
@@ -7,9 +7,8 @@ interface FavoriteButtonProps {
 }
 
 export function FavoriteButton({ characterId, className = '' }: FavoriteButtonProps) {
-  const toggleFavorite = useCharacterStore((state) => state.toggleFavorite)
-  const favorites = useCharacterStore((state) => state.favorites)
-  const favorite = favorites.includes(characterId)
+  const toggleFavorite = useFavoritesStore((state) => state.toggleFavorite)
+  const isFavorite = useFavoritesStore((state) => state.isFavorite(characterId))
 
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -22,17 +21,17 @@ export function FavoriteButton({ characterId, className = '' }: FavoriteButtonPr
       onClick={handleClick}
       className={`
         p-2 rounded-full transition-all duration-200 group/fav hover:scale-110
-        ${favorite 
+        ${isFavorite 
           ? 'bg-red-500 text-white hover:bg-red-600 shadow-lg' 
           : 'bg-slate-700/80 text-slate-300 hover:bg-red-500 hover:text-white hover:shadow-lg'
         }
         ${className}
       `}
-      aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
+      aria-label={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
     >
       <Heart 
         className={`h-4 w-4 transition-all duration-200 ${
-          favorite 
+          isFavorite 
             ? 'fill-current' 
             : 'group-hover/fav:fill-current'
         }`} 

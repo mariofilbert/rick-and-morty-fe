@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { ArrowLeft, MapPin, Calendar, Users } from 'lucide-react'
-import { useCharacterStore } from '@/store/store'
+import { useCharacterStore } from '@/store/character-store'
 import { StatusBadge } from '@/components/character/status-badge'
 import { FavoriteButton } from '@/components/common/favorite-button'
 

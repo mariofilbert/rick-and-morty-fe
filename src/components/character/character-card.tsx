@@ -49,7 +49,7 @@ export const CharacterCard = React.memo(({ character }: CharacterCardProps) => {
         
         <div className="p-4">
           <div className="flex justify-between items-start mb-1">
-            <h3 className="text-lg font-semibold text-white dark:text-white light:text-slate-900 group-hover:text-primary dark:text-glow transition-colors duration-300 flex-1 mr-2" style={titleStyle}>
+            <h3 className="text-lg font-semibold text-white dark:text-white light:text-slate-900 group-hover:text-primary dark:text-glow transition-colors duration-300 flex-1 mr-2 truncate" style={titleStyle} title={character.name}>
               {character.name}
             </h3>
             <StatusBadge status={character.status} />
