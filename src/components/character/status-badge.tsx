@@ -34,7 +34,7 @@ export function StatusBadge({ status, className = '' }: StatusBadgeProps) {
         boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)'
       }}
     >
-      {status}
+{status.charAt(0).toUpperCase() + status.slice(1)}
     </span>
   )
 }

@@ -99,7 +99,6 @@ body {
     0 8px 25px var(--shadow-color),
     0 0 40px var(--glow-color),
     inset 0 1px 0 rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
 }
 
 /* Light mode clean shadows */
@@ -114,7 +113,6 @@ body {
   box-shadow: 
     0 10px 15px -3px rgba(0, 0, 0, 0.1),
     0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  transform: translateY(-1px);
 }
 
 /* Theme-aware portal glow */

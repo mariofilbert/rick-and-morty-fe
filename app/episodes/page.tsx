@@ -6,6 +6,7 @@ import { Calendar, Users, Tv } from 'lucide-react'
 import { Episode, ApiResponse } from '@/types/types'
 import { EpisodeApiService } from '@/services'
 import { PageHeader } from '@/components/layout/page-header'
+import { PageTransition } from '@/components/common/page-transition'
 
 export default function Episodes() {
   const [episodes, setEpisodes] = useState<Episode[]>([])
@@ -75,7 +76,8 @@ export default function Episodes() {
   ]
 
   return (
-    <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: 'var(--background)' }}>
+    <PageTransition>
+      <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: 'var(--background)' }}>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <header className="mb-8">
@@ -270,7 +272,8 @@ export default function Episodes() {
             </div>
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </PageTransition>
   )
 }

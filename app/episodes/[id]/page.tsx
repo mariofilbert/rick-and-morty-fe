@@ -8,6 +8,7 @@ import { Episode, Character } from '@/types/types'
 import { EpisodeApiService, CharacterApiService } from '@/services'
 import { CharacterCard } from '@/components/character/character-card'
 import { ThemeToggle } from '@/components/layout/theme-toggle'
+import { PageTransition } from '@/components/common/page-transition'
 
 export default function EpisodeDetail() {
   const params = useParams()
@@ -98,7 +99,8 @@ export default function EpisodeDetail() {
   }
 
   return (
-    <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: 'var(--background)' }}>
+    <PageTransition>
+      <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: 'var(--background)' }}>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex justify-between items-start mb-8">
@@ -244,7 +246,8 @@ export default function EpisodeDetail() {
             <ArrowLeft className="h-4 w-4 rotate-180" />
           </Link>
         </div>
+        </div>
       </div>
-    </div>
+    </PageTransition>
   )
 }

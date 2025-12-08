@@ -1,17 +1,20 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import { ArrowLeft, MapPin, Calendar, Users } from 'lucide-react'
 import { useCharacterStore } from '@/store/character-store'
 import { StatusBadge } from '@/components/character/status-badge'
 import { FavoriteButton } from '@/components/common/favorite-button'
+import { PageTransition } from '@/components/common/page-transition'
 
 export default function CharacterDetail() {
   const params = useParams()
   const router = useRouter()
   const { currentCharacter, loading, error, fetchCharacter } = useCharacterStore()
+  const [showAllEpisodes, setShowAllEpisodes] = useState(false)
   
   const characterId = parseInt(params.id as string)
 
@@ -58,19 +61,24 @@ export default function CharacterDetail() {
   }
 
   return (
-    <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: 'var(--background)' }}>
+    <PageTransition>
+      <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: 'var(--background)' }}>
       <div className="container mx-auto px-4 py-8">
         {/* Back Button */}
         <button
           onClick={handleBack}
-          className="flex items-center gap-2 transition-all duration-300 mb-8 hover:scale-105 dark:hover:text-glow"
-          style={{ color: 'var(--foreground-muted)' }}
+          className="flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-300 mb-6 hover:scale-105 glow-card"
+          style={{ 
+            backgroundColor: 'var(--card-bg)', 
+            color: 'var(--foreground)',
+            border: '1px solid var(--border-color)'
+          }}
         >
           <ArrowLeft className="h-5 w-5" />
           Back to Characters
         </button>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
           {/* Character Image */}
           <div className="relative">
             <div className="aspect-square relative rounded-2xl overflow-hidden glow-card">
@@ -82,50 +90,63 @@ export default function CharacterDetail() {
                 priority
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent" />
-              <div className="absolute top-4 right-4 flex gap-2">
+              <div className="absolute top-4 right-4">
                 <FavoriteButton characterId={currentCharacter.id} />
-                <StatusBadge status={currentCharacter.status} className="text-sm px-3 py-1" />
               </div>
             </div>
           </div>
 
           {/* Character Info */}
-          <div className="space-y-6">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-2 dark:text-glow" style={{ color: 'var(--foreground)' }}>
-                {currentCharacter.name}
-              </h1>
-              <p className="text-xl font-medium dark:text-glow" style={{ color: 'var(--primary)' }}>
-                {currentCharacter.species}
-              </p>
+          <div className="p-6">
+            <div className="space-y-6">
+              <div className="flex items-start justify-between mb-4">
+                <div className="flex flex-col">
+                  <h1 className="text-3xl md:text-4xl font-bold dark:text-glow mb-2" style={{ color: 'var(--foreground)' }}>
+                    {currentCharacter.name}
+                  </h1>
+                  <p className="text-lg font-medium dark:text-glow" style={{ color: 'var(--primary)' }}>
+                    {currentCharacter.species}
+                  </p>
+                </div>
+                <div className="flex items-center">
+                  <StatusBadge status={currentCharacter.status} className="!text-base px-5 py-2 font-semibold" />
+                </div>
+              </div>
               {currentCharacter.type && (
-                <p className="text-lg" style={{ color: 'var(--foreground-muted)' }}>
+                <p className="text-base" style={{ color: 'var(--foreground-muted)' }}>
                   {currentCharacter.type}
                 </p>
               )}
             </div>
 
             {/* Info Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Gender */}
-              <div className="rounded-lg p-4 glow-card" style={{ backgroundColor: 'var(--card-bg)' }}>
-                <h3 className="text-sm font-semibold uppercase tracking-wide mb-1" style={{ color: 'var(--foreground-subtle)' }}>
+              <div className="rounded-lg p-5 glow-card min-h-[80px] flex flex-col justify-between" style={{ backgroundColor: 'var(--card-bg)' }}>
+                <h3 className="text-sm font-semibold uppercase tracking-wide mb-2" style={{ color: 'var(--foreground-subtle)' }}>
                   Gender
                 </h3>
                 <p className="font-medium" style={{ color: 'var(--foreground)' }}>{currentCharacter.gender}</p>
               </div>
 
-              {/* Status */}
-              <div className="rounded-lg p-4 glow-card" style={{ backgroundColor: 'var(--card-bg)' }}>
-                <h3 className="text-sm font-semibold uppercase tracking-wide mb-1" style={{ color: 'var(--foreground-subtle)' }}>
-                  Status
+              {/* Created */}
+              <div className="rounded-lg p-5 glow-card min-h-[80px] flex flex-col justify-between" style={{ backgroundColor: 'var(--card-bg)' }}>
+                <h3 className="text-sm font-semibold uppercase tracking-wide mb-2 flex items-center gap-2" style={{ color: 'var(--foreground-subtle)' }}>
+                  <Calendar className="h-4 w-4" />
+                  Created
                 </h3>
-                <StatusBadge status={currentCharacter.status} />
+                <p className="font-medium" style={{ color: 'var(--foreground)' }}>
+                  {new Date(currentCharacter.created).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                  })}
+                </p>
               </div>
 
               {/* Origin */}
-              <div className="rounded-lg p-4 glow-card" style={{ backgroundColor: 'var(--card-bg)' }}>
-                <h3 className="text-sm font-semibold uppercase tracking-wide mb-1 flex items-center gap-2" style={{ color: 'var(--foreground-subtle)' }}>
+              <div className="rounded-lg p-5 glow-card min-h-[80px] flex flex-col justify-between" style={{ backgroundColor: 'var(--card-bg)' }}>
+                <h3 className="text-sm font-semibold uppercase tracking-wide mb-2 flex items-center gap-2" style={{ color: 'var(--foreground-subtle)' }}>
                   <MapPin className="h-4 w-4" />
                   Origin
                 </h3>
@@ -133,8 +154,8 @@ export default function CharacterDetail() {
               </div>
 
               {/* Location */}
-              <div className="rounded-lg p-4 glow-card" style={{ backgroundColor: 'var(--card-bg)' }}>
-                <h3 className="text-sm font-semibold uppercase tracking-wide mb-1 flex items-center gap-2" style={{ color: 'var(--foreground-subtle)' }}>
+              <div className="rounded-lg p-5 glow-card min-h-[80px] flex flex-col justify-between" style={{ backgroundColor: 'var(--card-bg)' }}>
+                <h3 className="text-sm font-semibold uppercase tracking-wide mb-2 flex items-center gap-2" style={{ color: 'var(--foreground-subtle)' }}>
                   <MapPin className="h-4 w-4" />
                   Last Location
                 </h3>
@@ -143,56 +164,61 @@ export default function CharacterDetail() {
             </div>
 
             {/* Episodes */}
-            <div className="rounded-lg p-6 glow-card" style={{ backgroundColor: 'var(--card-bg)' }}>
-              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 dark:text-glow" style={{ color: 'var(--foreground)' }}>
-                <Users className="h-5 w-5" style={{ color: 'var(--primary)' }} />
+            <div className="rounded-lg p-5 glow-card mt-8" style={{ backgroundColor: 'var(--card-bg)' }}>
+              <h3 className="text-sm font-semibold uppercase tracking-wide mb-2 flex items-center gap-2" style={{ color: 'var(--foreground-subtle)' }}>
+                <Users className="h-4 w-4" />
                 Episodes
                 <span 
-                  className="text-white text-sm px-2 py-1 rounded-full dark:shadow-lg dark:shadow-emerald-500/50 light:shadow-md" 
+                  className="text-white text-xs px-2 py-1 rounded-full dark:shadow-lg dark:shadow-emerald-500/50 light:shadow-md" 
                   style={{ backgroundColor: 'var(--primary)' }}
                 >
                   {currentCharacter.episode.length}
                 </span>
               </h3>
               
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                {currentCharacter.episode.slice(0, 12).map((episodeUrl) => {
-                  const episodeNumber = episodeUrl.split('/').pop()
-                  return (
-                    <div
-                      key={episodeUrl}
-                      className="rounded px-3 py-2 text-center text-sm font-medium transition-all duration-300 hover:scale-105 glow-card"
-                      style={{ backgroundColor: 'var(--background-secondary)', color: 'var(--foreground)' }}
+              <div className={showAllEpisodes ? "max-h-40 overflow-y-auto pr-2" : ""}>
+                <div className="grid grid-cols-4 gap-2">
+                  {(showAllEpisodes 
+                    ? currentCharacter.episode 
+                    : currentCharacter.episode.slice(0, 8)
+                  ).map((episodeUrl) => {
+                    const episodeNumber = episodeUrl.split('/').pop()
+                    return (
+                      <Link
+                        key={episodeUrl}
+                        href={`/episodes/${episodeNumber}`}
+                        className="rounded px-3 py-2 text-center text-xs font-medium transition-all duration-300 hover:scale-105 glow-card cursor-pointer block"
+                        style={{ backgroundColor: 'var(--background-secondary)', color: 'var(--foreground)' }}
+                      >
+                        EP {episodeNumber}
+                      </Link>
+                    )
+                  })}
+                  
+                  {/* Show More / Show Less Button */}
+                  {currentCharacter.episode.length > 8 && (
+                    <button
+                      onClick={() => setShowAllEpisodes(!showAllEpisodes)}
+                      className="rounded px-3 py-2 text-center text-xs font-medium transition-all duration-300 cursor-pointer"
+                      style={{ 
+                        backgroundColor: 'var(--background-secondary)', 
+                        color: 'var(--primary)',
+                        border: `1px dashed ${showAllEpisodes ? 'var(--primary)' : 'var(--foreground-subtle)'}`
+                      }}
                     >
-                      EP {episodeNumber}
-                    </div>
-                  )
-                })}
-                {currentCharacter.episode.length > 12 && (
-                  <div className="rounded px-3 py-2 text-center text-sm" style={{ backgroundColor: 'var(--background-secondary)', color: 'var(--foreground-subtle)' }}>
-                    +{currentCharacter.episode.length - 12} more
-                  </div>
-                )}
+                      {showAllEpisodes 
+                        ? 'Show less' 
+                        : `+${currentCharacter.episode.length - 8} more`
+                      }
+                    </button>
+                  )}
+                </div>
               </div>
-            </div>
-
-            {/* Created Date */}
-            <div className="rounded-lg p-4 glow-card" style={{ backgroundColor: 'var(--card-bg)' }}>
-              <h3 className="text-sm font-semibold uppercase tracking-wide mb-1 flex items-center gap-2" style={{ color: 'var(--foreground-subtle)' }}>
-                <Calendar className="h-4 w-4" />
-                Created
-              </h3>
-              <p className="font-medium" style={{ color: 'var(--foreground)' }}>
-                {new Date(currentCharacter.created).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric'
-                })}
-              </p>
             </div>
           </div>
         </div>
+        </div>
       </div>
-    </div>
+    </PageTransition>
   )
 }

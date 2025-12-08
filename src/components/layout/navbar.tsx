@@ -41,24 +41,20 @@ export function Navbar() {
                     <Link
                       href={item.href}
                       className={`
-                        px-3 py-2 text-sm font-medium transition-all duration-300
+                        px-4 py-2 text-sm font-medium transition-all duration-300 rounded-lg
                         hover:scale-105 relative
                         ${isActive 
-                          ? 'text-glow' 
-                          : 'hover:text-glow'
+                          ? 'text-glow shadow-lg' 
+                          : 'hover:text-glow hover:bg-opacity-50'
                         }
                       `}
                       style={{ 
-                        color: isActive ? 'var(--primary)' : 'var(--foreground-muted)' 
+                        color: isActive ? 'white' : 'var(--foreground-muted)',
+                        backgroundColor: isActive ? 'var(--primary)' : 'transparent',
+                        boxShadow: isActive ? '0 4px 15px rgba(var(--primary-rgb), 0.4)' : 'none'
                       }}
                     >
                       {item.label}
-                      {isActive && (
-                        <span 
-                          className="absolute bottom-0 left-0 right-0 h-0.5 rounded-full"
-                          style={{ backgroundColor: 'var(--primary)' }}
-                        />
-                      )}
                     </Link>
                   </li>
                 )

@@ -80,7 +80,7 @@ export function DropdownFilter({
         onClick={() => setIsOpen(!isOpen)}
         className={`
           min-w-[120px] px-3 py-2 rounded-lg border transition-all duration-300
-          flex items-center justify-between gap-2
+          flex items-center justify-between gap-2 group
           ${isOpen 
             ? 'transform scale-105 shadow-lg' 
             : 'hover:scale-102 hover:shadow-md'
@@ -90,6 +90,18 @@ export function DropdownFilter({
           backgroundColor: 'var(--card-bg)',
           borderColor: activeFilter ? colors.primary : 'var(--card-border)',
           color: activeFilter ? colors.primary : 'var(--foreground)'
+        }}
+        onMouseEnter={(e) => {
+          if (!activeFilter) {
+            e.currentTarget.style.borderColor = colors.primary
+            e.currentTarget.style.color = colors.primary
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!activeFilter) {
+            e.currentTarget.style.borderColor = 'var(--card-border)'
+            e.currentTarget.style.color = 'var(--foreground)'
+          }
         }}
       >
         <span className="text-xs font-medium truncate">
@@ -132,6 +144,18 @@ export function DropdownFilter({
               style={{
                 backgroundColor: activeFilter === option.value ? `${colors.primary}20` : 'transparent',
                 color: activeFilter === option.value ? colors.primary : 'var(--foreground)'
+              }}
+              onMouseEnter={(e) => {
+                if (activeFilter !== option.value) {
+                  e.currentTarget.style.backgroundColor = `${colors.primary}15`
+                  e.currentTarget.style.color = colors.primary
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (activeFilter !== option.value) {
+                  e.currentTarget.style.backgroundColor = 'transparent'
+                  e.currentTarget.style.color = 'var(--foreground)'
+                }
               }}
             >
               <span>{option.label}</span>

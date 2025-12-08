@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import { Character } from '@/types/types'
 import { StatusBadge } from '@/components/character/status-badge'
 import { FavoriteButton } from '@/components/common/favorite-button'
@@ -39,8 +40,15 @@ export const CharacterCard = React.memo(({ character }: CharacterCardProps) => {
     }
   }
   return (
-    <Link href={`/character/${character.id}`}>
-      <div className="group relative glow-card rounded-lg overflow-hidden transform hover:scale-[1.02] transition-all duration-300 cursor-pointer" style={cardStyle}>
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3, ease: "easeOut" }}
+    >
+      <Link href={`/character/${character.id}`}>
+        <div className="group relative glow-card rounded-lg overflow-hidden transform hover:scale-[1.02] transition-all duration-300 cursor-pointer" style={cardStyle}>
         <div className="relative aspect-square overflow-hidden">
           <Image
             src={character.image}
@@ -73,9 +81,10 @@ export const CharacterCard = React.memo(({ character }: CharacterCardProps) => {
           <p className="text-xs mt-1 transition-colors duration-300" style={locationStyle}>
             {character.location.name}
           </p>
+          </div>
         </div>
-      </div>
-    </Link>
+      </Link>
+    </motion.div>
   )
 })
 
