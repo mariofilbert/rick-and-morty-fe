@@ -1,42 +1,62 @@
-'use client'
+'use client';
 
-import { useEffect, useCallback } from 'react'
-import Link from 'next/link'
-import { useAppStore } from '@/lib/store'
-import { CharacterCard } from '@/components/ui/character-card'
-import { SearchBar } from '@/components/ui/search-bar'
-import { FilterButtons } from '@/components/ui/filter-buttons'
-import { Pagination } from '@/components/ui/pagination'
-import { CharacterGridSkeleton } from '@/components/ui/loading-skeleton'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { useEffect, useCallback } from 'react';
+import Link from 'next/link';
+import { useShallow } from 'zustand/shallow';
+import { useCharacterStore } from '@/store/store';
+import { CharacterCard } from '@/components/character/character-card';
+import { SearchBar } from '@/components/common/search-bar';
+import { FilterButtons } from '@/components/common/filter-buttons';
+import { Pagination } from '@/components/common/pagination';
+import { CharacterGridSkeleton } from '@/components/common/loading-skeleton';
+import { ThemeToggle } from '@/components/layout/theme-toggle';
 
 export default function Home() {
-  const characters = useAppStore((state) => state.characters)
-  const loading = useAppStore((state) => state.loading)
-  const error = useAppStore((state) => state.error)
-  const searchQuery = useAppStore((state) => state.searchQuery)
-  const statusFilter = useAppStore((state) => state.statusFilter)
-  const currentPage = useAppStore((state) => state.currentPage)
-  const totalPages = useAppStore((state) => state.totalPages)
-  const hasNextPage = useAppStore((state) => state.hasNextPage)
-  const fetchCharacters = useAppStore((state) => state.fetchCharacters)
-  const searchCharacters = useAppStore((state) => state.searchCharacters)
-  const filterByStatus = useAppStore((state) => state.filterByStatus)
-  const nextPage = useAppStore((state) => state.nextPage)
-  const prevPage = useAppStore((state) => state.prevPage)
-  const resetFilters = useAppStore((state) => state.resetFilters)
+  const {
+    characters,
+    loading,
+    error,
+    searchQuery,
+    statusFilter,
+    currentPage,
+    totalPages,
+    hasNextPage,
+    fetchCharacters,
+    searchCharacters,
+    filterByStatus,
+    nextPage,
+    prevPage,
+    resetFilters,
+  } = useCharacterStore(
+    useShallow((state) => ({
+      characters: state.characters,
+      loading: state.loading,
+      error: state.error,
+      searchQuery: state.searchQuery,
+      statusFilter: state.statusFilter,
+      currentPage: state.currentPage,
+      totalPages: state.totalPages,
+      hasNextPage: state.hasNextPage,
+      fetchCharacters: state.fetchCharacters,
+      searchCharacters: state.searchCharacters,
+      filterByStatus: state.filterByStatus,
+      nextPage: state.nextPage,
+      prevPage: state.prevPage,
+      resetFilters: state.resetFilters,
+    }))
+  );
 
   useEffect(() => {
-    fetchCharacters()
-  }, [])
+    fetchCharacters();
+  }, []); // Only run on mount
 
   const handleSearch = useCallback((query: string) => {
-    searchCharacters(query)
-  }, [searchCharacters])
+    searchCharacters(query);
+  }, [searchCharacters]);
 
   const handleFilter = useCallback((status: string) => {
-    filterByStatus(status)
-  }, [filterByStatus])
+    filterByStatus(status);
+  }, [filterByStatus]);
 
   return (
     <div className="min-h-screen transition-colors duration-500">
@@ -45,20 +65,26 @@ export default function Home() {
         <header className="mb-8">
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h1 className="text-4xl md:text-5xl font-bold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+              <h1
+                className="text-4xl md:text-5xl font-bold transition-colors duration-300"
+                style={{ color: 'var(--foreground)' }}
+              >
                 Rick & Morty
-                <span className="block text-2xl md:text-3xl font-light text-primary dark:text-glow" style={{ color: 'var(--primary)' }}>
+                <span
+                  className="block text-2xl md:text-3xl font-light text-primary dark:text-glow"
+                  style={{ color: 'var(--primary)' }}
+                >
                   Character Explorer
                 </span>
               </h1>
               <div className="flex gap-4 mt-4">
-                <Link 
+                <Link
                   href="/episodes"
                   className="px-4 py-2 rounded-lg border transition-all duration-300 hover:scale-105 dark:hover:text-glow"
                   style={{
                     borderColor: 'var(--card-border)',
                     backgroundColor: 'var(--card-bg)',
-                    color: 'var(--foreground-muted)'
+                    color: 'var(--foreground-muted)',
                   }}
                 >
                   Browse Episodes
@@ -67,7 +93,7 @@ export default function Home() {
             </div>
             <ThemeToggle />
           </div>
-          
+
           {/* Search and Filters */}
           <div className="flex flex-col lg:flex-row items-center justify-center gap-4 mt-8">
             <SearchBar
@@ -86,7 +112,7 @@ export default function Home() {
                 style={{
                   color: 'var(--foreground-muted)',
                   borderColor: 'var(--card-border)',
-                  backgroundColor: 'var(--card-bg)'
+                  backgroundColor: 'var(--card-bg)',
                 }}
               >
                 Clear filters
@@ -102,7 +128,9 @@ export default function Home() {
               <h3 className="text-xl font-semibold mb-2 dark:text-red-400 dark:text-glow light:text-red-700">
                 Oops! Something went wrong
               </h3>
-              <p className="mb-4 dark:text-red-300 light:text-red-600">{error}</p>
+              <p className="mb-4 dark:text-red-300 light:text-red-600">
+                {error}
+              </p>
               <button
                 onClick={fetchCharacters}
                 className="px-4 py-2 text-white rounded-lg transition-all duration-300 hover:scale-105 dark:bg-red-600 dark:hover:bg-red-500 dark:shadow-lg dark:shadow-red-500/50 light:bg-red-600 light:hover:bg-red-500 light:shadow-md"
@@ -128,7 +156,7 @@ export default function Home() {
                 <CharacterCard key={character.id} character={character} />
               ))}
             </div>
-            
+
             <Pagination
               currentPage={currentPage}
               totalPages={totalPages}
@@ -143,8 +171,14 @@ export default function Home() {
         {/* Empty State */}
         {!loading && !error && characters.length === 0 && (
           <div className="text-center py-12">
-            <div className="max-w-md mx-auto glow-card rounded-lg p-6" style={{ backgroundColor: 'var(--card-bg)' }}>
-              <h3 className="text-xl font-semibold mb-2 dark:text-glow" style={{ color: 'var(--foreground)' }}>
+            <div
+              className="max-w-md mx-auto glow-card rounded-lg p-6"
+              style={{ backgroundColor: 'var(--card-bg)' }}
+            >
+              <h3
+                className="text-xl font-semibold mb-2 dark:text-glow"
+                style={{ color: 'var(--foreground)' }}
+              >
                 No characters found
               </h3>
               <p className="mb-4" style={{ color: 'var(--foreground-muted)' }}>
@@ -162,5 +196,5 @@ export default function Home() {
         )}
       </div>
     </div>
-  )
+  );
 }

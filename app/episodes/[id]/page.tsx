@@ -4,9 +4,10 @@ import { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Users, Tv } from 'lucide-react'
-import { Episode, Character } from '@/lib/types'
-import { CharacterCard } from '@/components/ui/character-card'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { Episode, Character } from '@/types/types'
+import { EpisodeApiService, CharacterApiService } from '@/services'
+import { CharacterCard } from '@/components/character/character-card'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 
 export default function EpisodeDetail() {
   const params = useParams()
@@ -23,34 +24,22 @@ export default function EpisodeDetail() {
       setError(null)
       
       // Fetch episode details
-      const episodeResponse = await fetch(`https://rickandmortyapi.com/api/episode/${episodeId}`)
-      
-      if (!episodeResponse.ok) {
-        if (episodeResponse.status === 404) {
-          throw new Error('Episode not found')
-        }
-        throw new Error(`HTTP error! status: ${episodeResponse.status}`)
-      }
-
-      const episodeData: Episode = await episodeResponse.json()
+      const episodeData = await EpisodeApiService.getEpisode(episodeId)
       setEpisode(episodeData)
 
       // Fetch characters in this episode
       if (episodeData.characters.length > 0) {
         // Extract character IDs from URLs
-        const characterIds = episodeData.characters.map(url => {
-          const id = url.split('/').pop()
-          return id
-        }).filter(id => id)
+        const characterIds = episodeData.characters
+          .map(url => {
+            const id = url.split('/').pop()
+            return id ? parseInt(id) : null
+          })
+          .filter((id): id is number => id !== null && !isNaN(id))
 
         if (characterIds.length > 0) {
-          const charactersResponse = await fetch(`https://rickandmortyapi.com/api/character/${characterIds.join(',')}`)
-          
-          if (charactersResponse.ok) {
-            const charactersData = await charactersResponse.json()
-            // Handle both single character and array responses
-            setCharacters(Array.isArray(charactersData) ? charactersData : [charactersData])
-          }
+          const charactersData = await CharacterApiService.getMultipleCharacters(characterIds)
+          setCharacters(charactersData)
         }
       }
     } catch (err) {

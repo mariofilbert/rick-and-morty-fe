@@ -1,8 +1,8 @@
-import { Character, ApiResponse, SearchFilters } from './types'
+import { Character, ApiResponse, SearchFilters } from '@/types/types'
 
 const BASE_URL = 'https://rickandmortyapi.com/api'
 
-export class ApiService {
+export class CharacterApiService {
   static async getCharacters(filters: SearchFilters = {}): Promise<ApiResponse<Character>> {
     const params = new URLSearchParams()
     

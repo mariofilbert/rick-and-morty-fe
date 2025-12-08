@@ -1,4 +1,4 @@
-import { Character } from '@/lib/types'
+import { Character } from '@/types/types'
 
 interface FilterButtonsProps {
   activeFilter: string

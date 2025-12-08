@@ -1,5 +1,5 @@
 import { Heart } from 'lucide-react'
-import { useAppStore } from '@/lib/store'
+import { useCharacterStore } from '@/store/store'
 
 interface FavoriteButtonProps {
   characterId: number
@@ -7,8 +7,8 @@ interface FavoriteButtonProps {
 }
 
 export function FavoriteButton({ characterId, className = '' }: FavoriteButtonProps) {
-  const toggleFavorite = useAppStore((state) => state.toggleFavorite)
-  const favorites = useAppStore((state) => state.favorites)
+  const toggleFavorite = useCharacterStore((state) => state.toggleFavorite)
+  const favorites = useCharacterStore((state) => state.favorites)
   const favorite = favorites.includes(characterId)
 
   const handleClick = (e: React.MouseEvent) => {

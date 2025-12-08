@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { Character, ApiResponse, SearchFilters } from './types'
-import { ApiService } from './api'
+import { Character, ApiResponse, SearchFilters } from '@/types/types'
+import { CharacterApiService } from '@/services'
 
 interface AppState {
   characters: Character[]
@@ -36,7 +36,7 @@ interface AppState {
   isFavorite: (characterId: number) => boolean
 }
 
-export const useAppStore = create<AppState>()(
+export const useCharacterStore = create<AppState>()(
   persist(
     (set, get) => ({
       characters: [],
@@ -85,7 +85,7 @@ export const useAppStore = create<AppState>()(
             ...(statusFilter && { status: statusFilter })
           }
           
-          const response = await ApiService.getCharacters(filters)
+          const response = await CharacterApiService.getCharacters(filters)
           set({
             characters: response.results,
             totalPages: response.info.pages,
@@ -107,7 +107,7 @@ export const useAppStore = create<AppState>()(
         set({ loading: true, error: null })
 
         try {
-          const character = await ApiService.getCharacter(id)
+          const character = await CharacterApiService.getCharacter(id)
           set({ currentCharacter: character })
         } catch (error) {
           set({ 

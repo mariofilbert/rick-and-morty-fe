@@ -3,8 +3,9 @@
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { ArrowLeft, Calendar, Users, Tv } from 'lucide-react'
-import { Episode, ApiResponse } from '@/lib/types'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
+import { Episode, ApiResponse } from '@/types/types'
+import { EpisodeApiService } from '@/services'
+import { ThemeToggle } from '@/components/layout/theme-toggle'
 
 export default function Episodes() {
   const [episodes, setEpisodes] = useState<Episode[]>([])
@@ -20,25 +21,11 @@ export default function Episodes() {
       setLoading(true)
       setError(null)
       
-      const params = new URLSearchParams({
-        page: page.toString()
+      const data = await EpisodeApiService.getEpisodes({
+        page,
+        name,
+        episode
       })
-      
-      if (name) params.append('name', name)
-      if (episode) params.append('episode', episode)
-
-      const response = await fetch(`https://rickandmortyapi.com/api/episode?${params}`)
-      
-      if (!response.ok) {
-        if (response.status === 404) {
-          setEpisodes([])
-          setTotalPages(1)
-          return
-        }
-        throw new Error(`HTTP error! status: ${response.status}`)
-      }
-
-      const data: ApiResponse<Episode> = await response.json()
       setEpisodes(data.results)
       setTotalPages(data.info.pages)
       setCurrentPage(page)

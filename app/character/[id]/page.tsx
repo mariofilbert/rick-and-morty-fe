@@ -4,14 +4,14 @@ import { useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { ArrowLeft, MapPin, Calendar, Users } from 'lucide-react'
-import { useAppStore } from '@/lib/store'
-import { StatusBadge } from '@/components/ui/status-badge'
-import { FavoriteButton } from '@/components/ui/favorite-button'
+import { useCharacterStore } from '@/store/store'
+import { StatusBadge } from '@/components/character/status-badge'
+import { FavoriteButton } from '@/components/common/favorite-button'
 
 export default function CharacterDetail() {
   const params = useParams()
   const router = useRouter()
-  const { currentCharacter, loading, error, fetchCharacter } = useAppStore()
+  const { currentCharacter, loading, error, fetchCharacter } = useCharacterStore()
   
   const characterId = parseInt(params.id as string)
 
