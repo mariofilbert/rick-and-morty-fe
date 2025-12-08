@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useCallback } from 'react'
+import Link from 'next/link'
 import { useAppStore } from '@/lib/store'
 import { CharacterCard } from '@/components/ui/character-card'
 import { SearchBar } from '@/components/ui/search-bar'
@@ -38,17 +39,32 @@ export default function Home() {
   }, [filterByStatus])
 
   return (
-    <div className="min-h-screen bg-slate-900 dark:bg-slate-900 light:bg-gray-50 transition-colors duration-300">
+    <div className="min-h-screen transition-colors duration-500">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <header className="mb-8">
           <div className="flex justify-between items-start mb-6">
-            <h1 className="text-4xl md:text-5xl font-bold text-white dark:text-white light:text-slate-800">
-              Rick & Morty
-              <span className="block text-2xl md:text-3xl font-light text-emerald-400">
-                Character Explorer
-              </span>
-            </h1>
+            <div>
+              <h1 className="text-4xl md:text-5xl font-bold transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
+                Rick & Morty
+                <span className="block text-2xl md:text-3xl font-light text-primary dark:text-glow" style={{ color: 'var(--primary)' }}>
+                  Character Explorer
+                </span>
+              </h1>
+              <div className="flex gap-4 mt-4">
+                <Link 
+                  href="/episodes"
+                  className="px-4 py-2 rounded-lg border transition-all duration-300 hover:scale-105 dark:hover:text-glow"
+                  style={{
+                    borderColor: 'var(--card-border)',
+                    backgroundColor: 'var(--card-bg)',
+                    color: 'var(--foreground-muted)'
+                  }}
+                >
+                  Browse Episodes
+                </Link>
+              </div>
+            </div>
             <ThemeToggle />
           </div>
           
@@ -66,7 +82,12 @@ export default function Home() {
             {(searchQuery || statusFilter) && (
               <button
                 onClick={resetFilters}
-                className="px-4 py-2 text-sm text-slate-400 hover:text-white transition-colors"
+                className="px-4 py-2 text-sm rounded-lg border transition-all duration-300 hover:scale-105 dark:hover:text-glow light:hover:shadow-md"
+                style={{
+                  color: 'var(--foreground-muted)',
+                  borderColor: 'var(--card-border)',
+                  backgroundColor: 'var(--card-bg)'
+                }}
               >
                 Clear filters
               </button>
@@ -77,14 +98,14 @@ export default function Home() {
         {/* Error State */}
         {error && (
           <div className="text-center py-12">
-            <div className="bg-red-900/20 border border-red-500/30 rounded-lg p-6 max-w-md mx-auto">
-              <h3 className="text-xl font-semibold text-red-400 mb-2">
+            <div className="rounded-lg p-6 max-w-md mx-auto glow-card dark:bg-red-900/20 dark:border-red-500/50 light:bg-red-50 light:border-red-200">
+              <h3 className="text-xl font-semibold mb-2 dark:text-red-400 dark:text-glow light:text-red-700">
                 Oops! Something went wrong
               </h3>
-              <p className="text-red-300 mb-4">{error}</p>
+              <p className="mb-4 dark:text-red-300 light:text-red-600">{error}</p>
               <button
                 onClick={fetchCharacters}
-                className="px-4 py-2 bg-red-600 hover:bg-red-500 text-white rounded-lg transition-colors"
+                className="px-4 py-2 text-white rounded-lg transition-all duration-300 hover:scale-105 dark:bg-red-600 dark:hover:bg-red-500 dark:shadow-lg dark:shadow-red-500/50 light:bg-red-600 light:hover:bg-red-500 light:shadow-md"
               >
                 Try again
               </button>
@@ -122,16 +143,17 @@ export default function Home() {
         {/* Empty State */}
         {!loading && !error && characters.length === 0 && (
           <div className="text-center py-12">
-            <div className="max-w-md mx-auto">
-              <h3 className="text-xl font-semibold text-white mb-2">
+            <div className="max-w-md mx-auto glow-card rounded-lg p-6" style={{ backgroundColor: 'var(--card-bg)' }}>
+              <h3 className="text-xl font-semibold mb-2 dark:text-glow" style={{ color: 'var(--foreground)' }}>
                 No characters found
               </h3>
-              <p className="text-slate-400 mb-4">
+              <p className="mb-4" style={{ color: 'var(--foreground-muted)' }}>
                 Try adjusting your search or filter criteria
               </p>
               <button
                 onClick={resetFilters}
-                className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition-colors"
+                className="px-4 py-2 text-white rounded-lg transition-all duration-300 hover:scale-105 dark:shadow-lg dark:shadow-emerald-500/50 light:shadow-md"
+                style={{ backgroundColor: 'var(--primary)' }}
               >
                 Reset filters
               </button>

@@ -11,7 +11,7 @@ interface CharacterCardProps {
 export function CharacterCard({ character }: CharacterCardProps) {
   return (
     <Link href={`/character/${character.id}`}>
-      <div className="group relative bg-slate-800 dark:bg-slate-800 light:bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl light:shadow-slate-200 transform hover:scale-[1.02] transition-all duration-300 cursor-pointer border light:border-slate-200">
+      <div className="group relative glow-card rounded-lg overflow-hidden transform hover:scale-[1.02] transition-all duration-300 cursor-pointer" style={{ backgroundColor: 'var(--card-bg)' }}>
         <div className="relative aspect-square overflow-hidden">
           <Image
             src={character.image}
@@ -23,8 +23,8 @@ export function CharacterCard({ character }: CharacterCardProps) {
             loading="lazy"
           />
           
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-transparent to-transparent" />
-          <div className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-500/5 transition-colors duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent dark:from-slate-900/90 light:from-slate-900/60" />
+          <div className="absolute inset-0 bg-emerald-500/0 group-hover:bg-emerald-400/10 dark:group-hover:bg-emerald-400/20 light:group-hover:bg-emerald-600/5 transition-colors duration-300" />
           
           <div className="absolute top-3 right-3 z-10">
             <StatusBadge status={character.status} />
@@ -36,13 +36,13 @@ export function CharacterCard({ character }: CharacterCardProps) {
         </div>
         
         <div className="p-4">
-          <h3 className="text-lg font-semibold text-white dark:text-white light:text-slate-800 mb-1 group-hover:text-emerald-400 transition-colors duration-300">
+          <h3 className="text-lg font-semibold text-white dark:text-white light:text-slate-900 mb-1 group-hover:text-primary dark:text-glow transition-colors duration-300" style={{ color: 'var(--foreground)' }}>
             {character.name}
           </h3>
-          <p className="text-sm text-slate-300 dark:text-slate-300 light:text-slate-600">
+          <p className="text-sm transition-colors duration-300" style={{ color: 'var(--foreground-muted)' }}>
             {character.species}
           </p>
-          <p className="text-xs text-slate-400 dark:text-slate-400 light:text-slate-500 mt-1">
+          <p className="text-xs mt-1 transition-colors duration-300" style={{ color: 'var(--foreground-subtle)' }}>
             {character.location.name}
           </p>
         </div>

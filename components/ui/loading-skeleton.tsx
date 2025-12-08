@@ -1,12 +1,34 @@
 export function LoadingSkeleton() {
   return (
-    <div className="animate-pulse">
-      <div className="bg-slate-700 rounded-lg overflow-hidden">
-        <div className="aspect-square bg-slate-600" />
-        <div className="p-4 space-y-2">
-          <div className="h-5 bg-slate-600 rounded w-3/4" />
-          <div className="h-4 bg-slate-600 rounded w-1/2" />
-          <div className="h-3 bg-slate-600 rounded w-2/3" />
+    <div className="glow-card rounded-lg overflow-hidden" style={{ backgroundColor: 'var(--card-bg)' }}>
+      <div className="relative">
+        <div 
+          className="aspect-square shimmer dark:bg-slate-600/50 light:bg-slate-200"
+          style={{ backgroundColor: 'var(--background-secondary)' }}
+        />
+        <div className="absolute inset-0 shimmer" />
+      </div>
+      <div className="p-4 space-y-3">
+        <div className="relative">
+          <div 
+            className="h-5 rounded w-3/4 dark:bg-slate-600/50 light:bg-slate-300"
+            style={{ backgroundColor: 'var(--background-secondary)' }}
+          />
+          <div className="absolute inset-0 shimmer rounded" />
+        </div>
+        <div className="relative">
+          <div 
+            className="h-4 rounded w-1/2 dark:bg-slate-600/50 light:bg-slate-300"
+            style={{ backgroundColor: 'var(--background-secondary)' }}
+          />
+          <div className="absolute inset-0 shimmer rounded" />
+        </div>
+        <div className="relative">
+          <div 
+            className="h-3 rounded w-2/3 dark:bg-slate-600/50 light:bg-slate-300"
+            style={{ backgroundColor: 'var(--background-secondary)' }}
+          />
+          <div className="absolute inset-0 shimmer rounded" />
         </div>
       </div>
     </div>

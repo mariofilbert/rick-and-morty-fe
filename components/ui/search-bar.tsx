@@ -47,13 +47,19 @@ export function SearchBar({
         placeholder={placeholder}
         className="
           block w-full pl-10 pr-10 py-2.5 
-          bg-slate-700 dark:bg-slate-700 light:bg-white 
-          border border-slate-600 dark:border-slate-600 light:border-slate-300
-          rounded-lg text-white dark:text-white light:text-slate-800 
-          placeholder-slate-400 dark:placeholder-slate-400 light:placeholder-slate-500
+          rounded-lg
           focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent
-          transition-all duration-200
+          transition-all duration-300
+          dark:bg-slate-700 dark:border-slate-500 dark:text-white dark:placeholder-slate-400
+          dark:focus:ring-emerald-400 dark:focus:ring-opacity-50 dark:focus:shadow-lg dark:focus:shadow-emerald-500/25
+          light:bg-white light:border-slate-300 light:text-slate-900 light:placeholder-slate-500
+          light:focus:ring-emerald-600 light:shadow-sm light:focus:shadow-md
         "
+        style={{ 
+          backgroundColor: 'var(--card-bg)', 
+          borderColor: 'var(--card-border)',
+          color: 'var(--foreground)'
+        }}
       />
       
       {inputValue && (
