@@ -22,6 +22,8 @@ export default function CharacterDetail() {
     if (characterId) {
       fetchCharacter(characterId)
     }
+    // Scroll to top when navigating to character detail
+    window.scrollTo(0, 0)
   }, [characterId, fetchCharacter])
 
   const handleBack = () => {
@@ -88,6 +90,7 @@ export default function CharacterDetail() {
                 fill
                 className="object-cover"
                 priority
+                sizes="(max-width: 1024px) 100vw, 50vw"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent" />
               <div className="absolute top-4 right-4">

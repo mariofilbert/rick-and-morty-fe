@@ -7,6 +7,7 @@ import { Episode, ApiResponse } from '@/types/types'
 import { EpisodeApiService } from '@/services'
 import { PageHeader } from '@/components/layout/page-header'
 import { PageTransition } from '@/components/common/page-transition'
+import { SearchBar } from '@/components/common/search-bar'
 
 export default function Episodes() {
   const [episodes, setEpisodes] = useState<Episode[]>([])
@@ -89,18 +90,11 @@ export default function Episodes() {
           
           {/* Search and Filters */}
           <div className="flex flex-col lg:flex-row items-center justify-center gap-4 mt-8">
-            <div className="relative w-full max-w-md">
-              <input
-                type="text"
+            <div className="w-full max-w-md">
+              <SearchBar
                 value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
+                onChange={handleSearch}
                 placeholder="Search episodes..."
-                className="block w-full px-4 py-2.5 rounded-lg border transition-all duration-300 focus:outline-none focus:ring-2"
-                style={{
-                  backgroundColor: 'var(--card-bg)',
-                  borderColor: 'var(--card-border)',
-                  color: 'var(--foreground)'
-                }}
               />
             </div>
             

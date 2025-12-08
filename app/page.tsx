@@ -104,12 +104,32 @@ export default function Home() {
 
   const handleNextPage = () => {
     setFilters({ page: filters.page + 1 });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
   };
 
   const handlePrevPage = () => {
     if (filters.page > 1) {
       setFilters({ page: filters.page - 1 });
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 100);
     }
+  };
+
+  const handleFirstPage = () => {
+    setFilters({ page: 1 });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
+  };
+
+  const handleLastPage = () => {
+    setFilters({ page: totalPages });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 100);
   };
 
   const handleResetFilters = () => {
@@ -280,8 +300,12 @@ export default function Home() {
                 }}
               >
                 <AnimatePresence mode="popLayout">
-                  {characters.map((character) => (
-                    <CharacterCard key={character.id} character={character} />
+                  {characters.map((character, index) => (
+                    <CharacterCard 
+                      key={character.id} 
+                      character={character} 
+                      priority={index < 4} // First 4 characters get priority loading
+                    />
                   ))}
                 </AnimatePresence>
               </motion.div>
@@ -294,6 +318,8 @@ export default function Home() {
                   hasNextPage={hasNextPage}
                   onPrevious={handlePrevPage}
                   onNext={handleNextPage}
+                  onFirst={handleFirstPage}
+                  onLast={handleLastPage}
                   loading={loading}
                 />
               )}
