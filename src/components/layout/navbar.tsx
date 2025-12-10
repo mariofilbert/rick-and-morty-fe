@@ -8,15 +8,14 @@ export function Navbar() {
   const pathname = usePathname()
 
   const navItems = [
-    { href: '/', label: 'Characters' },
+    { href: '/character', label: 'Characters' },
     { href: '/episodes', label: 'Episodes' },
   ]
 
   return (
-    <nav className="sticky top-0 z-50 backdrop-blur-lg border-b transition-all duration-300" 
+    <nav className="sticky top-0 z-50 backdrop-blur-lg transition-all duration-300" 
          style={{ 
-           backgroundColor: 'rgba(var(--background-rgb), 0.8)',
-           borderColor: 'var(--card-border)' 
+           backgroundColor: 'rgba(var(--background-rgb), 0.8)'
          }}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">

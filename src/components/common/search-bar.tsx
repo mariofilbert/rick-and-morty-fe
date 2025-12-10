@@ -66,6 +66,7 @@ export function SearchBar({
         <button
           onClick={clearSearch}
           className="absolute inset-y-0 right-0 pr-2 flex items-center text-slate-400 hover:text-white transition-colors"
+          aria-label="Clear search"
         >
           <X className="h-4 w-4" />
         </button>

@@ -1,362 +1,256 @@
-'use client';
+'use client'
 
-import { useEffect, useState } from 'react';
-import { useShallow } from 'zustand/react/shallow';
-import { Users, Star } from 'lucide-react';
-import { useCharacterStore } from '@/store/character-store';
-import { useDebounce } from '@/hooks/useDebounce';
-import { CharacterCard } from '@/components/character/character-card';
-import { SearchBar } from '@/components/common/search-bar';
-import { DropdownFilter } from '@/components/common/dropdown-filter';
-import { Pagination } from '@/components/common/pagination';
-import { CharacterGridSkeleton } from '@/components/common/loading-skeleton';
-import { PageHeader } from '@/components/layout/page-header';
-import { PageTransition } from '@/components/common/page-transition';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useRef, useEffect } from 'react'
+import Link from 'next/link'
+import { ArrowRight, Users, Tv, Search, Heart } from 'lucide-react'
+import { gsap } from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 
-export default function Home() {
-  const {
-    characters,
-    loading,
-    error,
-    filters,
-    totalPages,
-    hasNextPage,
-    fetchCharacters,
-    setFilters,
-  } = useCharacterStore(
-    useShallow((state) => ({
-      characters: state.characters,
-      loading: state.loading,
-      error: state.error,
-      filters: state.filters,
-      totalPages: state.totalPages,
-      hasNextPage: state.hasNextPage,
-      fetchCharacters: state.fetchCharacters,
-      setFilters: state.setFilters,
-    }))
-  );
+gsap.registerPlugin(ScrollTrigger)
 
-  // Filter options
-  const statusOptions = [
-    { value: '', label: 'All Status' },
-    { value: 'alive', label: 'Alive' },
-    { value: 'dead', label: 'Dead' },
-    { value: 'unknown', label: 'Unknown' },
-  ];
+export default function LandingPage() {
+  const containerRef = useRef<HTMLDivElement>(null)
+  const heroRef = useRef<HTMLDivElement>(null)
+  const portalRef = useRef<HTMLDivElement>(null)
+  const featuresRef = useRef<HTMLDivElement>(null)
+  const featureCardsRef = useRef<HTMLDivElement[]>([])
+  const particlesRef = useRef<HTMLDivElement[]>([])
 
-  const speciesOptions = [
-    { value: '', label: 'All Species' },
-    { value: 'Human', label: 'Human' },
-    { value: 'Alien', label: 'Alien' },
-    { value: 'Humanoid', label: 'Humanoid' },
-    { value: 'Robot', label: 'Robot' },
-    { value: 'Animal', label: 'Animal' },
-    { value: 'Cronenberg', label: 'Cronenberg' },
-    { value: 'Disease', label: 'Disease' },
-  ];
-
-  const genderOptions = [
-    { value: '', label: 'All Genders' },
-    { value: 'Female', label: 'Female' },
-    { value: 'Male', label: 'Male' },
-    { value: 'Genderless', label: 'Genderless' },
-    { value: 'unknown', label: 'Unknown' },
-  ];
-
-  // Local search state for immediate UI updates
-  const [searchQuery, setSearchQuery] = useState(filters.name);
-
-  // Debounced search value
-  const debouncedSearchQuery = useDebounce(searchQuery, 150);
-
-  // Update filters when debounced search changes
   useEffect(() => {
-    if (debouncedSearchQuery !== filters.name) {
-      setFilters({ name: debouncedSearchQuery, page: 1 });
+    // Portal smooth floating animation
+    gsap.set(portalRef.current, { scale: 1 })
+    
+    // Create a timeline for smooth coordinated animation
+    const tl = gsap.timeline({ repeat: -1 })
+    
+    tl.to(portalRef.current, {
+      y: -15,
+      scale: 1.1,
+      duration: 3,
+      ease: "sine.inOut"
+    })
+    .to(portalRef.current, {
+      y: 15,
+      scale: 0.95,
+      duration: 3,
+      ease: "sine.inOut"
+    })
+    .to(portalRef.current, {
+      y: 0,
+      scale: 1,
+      duration: 3,
+      ease: "sine.inOut"
+    })
+
+    // Animate background particles
+    particlesRef.current.forEach((particle, index) => {
+      if (particle) {
+        // Different movement for each particle
+        gsap.to(particle, {
+          y: index % 2 === 0 ? -20 : 20,
+          x: index % 3 === 0 ? 15 : -15,
+          duration: 3 + index,
+          ease: "power2.inOut",
+          repeat: -1,
+          yoyo: true
+        })
+        
+        // Opacity pulse
+        gsap.to(particle, {
+          opacity: 0.8,
+          duration: 2 + index * 0.5,
+          ease: "power2.inOut",
+          repeat: -1,
+          yoyo: true
+        })
+      }
+    })
+
+    // Feature boxes animation
+    if (featureCardsRef.current.length > 0) {
+      gsap.set(featureCardsRef.current, { 
+        opacity: 0, 
+        y: 50, 
+        scale: 0.8 
+      })
+      
+      gsap.to(featureCardsRef.current, {
+        opacity: 1,
+        y: 0,
+        scale: 1,
+        duration: 0.6,
+        stagger: 0.2,
+        ease: "back.out(1.7)",
+        scrollTrigger: {
+          trigger: featuresRef.current,
+          start: "top 80%",
+          toggleActions: "play none none reverse"
+        }
+      })
     }
-  }, [debouncedSearchQuery]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
-  // Fetch characters on mount and when filters change
-  useEffect(() => {
-    fetchCharacters();
-  }, [filters]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  const handleSearch = (query: string) => {
-    setSearchQuery(query); // Update local state immediately for UI responsiveness
-  };
-
-  const handleFilter = (status: string) => {
-    setFilters({ status, page: 1 });
-  };
-
-  const handleSpeciesFilter = (species: string) => {
-    setFilters({ species, page: 1 });
-  };
-
-  const handleGenderFilter = (gender: string) => {
-    setFilters({ gender, page: 1 });
-  };
-
-  const handleFavoritesToggle = () => {
-    setFilters({ favoritesOnly: !filters.favoritesOnly, page: 1 });
-  };
-
-  const handleNextPage = () => {
-    setFilters({ page: filters.page + 1 });
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 100);
-  };
-
-  const handlePrevPage = () => {
-    if (filters.page > 1) {
-      setFilters({ page: filters.page - 1 });
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 100);
+  const features = [
+    {
+      icon: <Users className="h-8 w-8" />,
+      title: "Character Explorer",
+      description: "Browse through 800+ characters from the Rick and Morty universe with detailed information."
+    },
+    {
+      icon: <Search className="h-8 w-8" />,
+      title: "Advanced Filters",
+      description: "Search by name, filter by status, species, gender, and save your favorite characters."
+    },
+    {
+      icon: <Tv className="h-8 w-8" />,
+      title: "Episode Guide", 
+      description: "Explore all episodes with character appearances and detailed information."
+    },
+    {
+      icon: <Heart className="h-8 w-8" />,
+      title: "Favorites System",
+      description: "Save your favorite characters and access them quickly with persistent storage."
     }
-  };
+  ]
 
-  const handleFirstPage = () => {
-    setFilters({ page: 1 });
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 100);
-  };
-
-  const handleLastPage = () => {
-    setFilters({ page: totalPages });
-    setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 100);
-  };
-
-  const handleResetFilters = () => {
-    setFilters({
-      name: '',
-      status: '',
-      species: '',
-      gender: '',
-      favoritesOnly: false,
-      page: 1,
-    });
-  };
+  const particles = [
+    { top: '20%', left: '10%', size: 'w-4 h-4' },
+    { top: '40%', right: '20%', size: 'w-2 h-2' },
+    { bottom: '40%', left: '20%', size: 'w-3 h-3' },
+    { bottom: '20%', right: '10%', size: 'w-5 h-5' },
+    { top: '32%', left: '33%', size: 'w-3 h-3' },
+    { top: '60%', right: '25%', size: 'w-2 h-2' },
+    { bottom: '60%', left: '25%', size: 'w-4 h-4' },
+    { bottom: '32%', right: '33%', size: 'w-3 h-3' },
+    { top: '33%', left: '16%', size: 'w-2 h-2' },
+    { top: '66%', right: '16%', size: 'w-5 h-5' },
+    { bottom: '33%', left: '32%', size: 'w-3 h-3' },
+    { bottom: '66%', right: '32%', size: 'w-2 h-2' },
+  ]
 
   return (
-    <PageTransition>
-      <div className="min-h-screen transition-colors duration-500">
-        <div className="container mx-auto px-4 py-8">
-          {/* Header */}
-          <header className="mb-8">
-            <PageHeader
-              title="Characters"
-              subtitle="Explore the Multiverse"
-              icon={<Users className="h-10 w-10" />}
+    <div ref={containerRef} className="min-h-screen transition-colors duration-500" style={{ backgroundColor: 'var(--background)' }}>
+      {/* Hero Section */}
+      <section ref={heroRef} className="relative min-h-screen flex items-center justify-center overflow-hidden">
+        {/* Background Animation - Floating particles */}
+        <div className="absolute inset-0 opacity-20">
+          {particles.map((particle, index) => (
+            <div
+              key={index}
+              ref={(el) => { if (el) particlesRef.current[index] = el }}
+              className={`absolute ${particle.size} rounded-full`}
+              style={{
+                backgroundColor: 'var(--primary)',
+                filter: 'blur(1px)',
+                ...particle
+              }}
             />
+          ))}
+        </div>
 
-            {/* Search and Filters */}
-            <div className="mt-4">
-              {/* Compact Filter Bar */}
-              <div className="flex flex-col lg:flex-row lg:items-center lg:justify-center gap-3">
-                {/* Search Bar */}
-                <div className="lg:mr-4">
-                  <SearchBar
-                    value={searchQuery}
-                    onChange={handleSearch}
-                    placeholder="Search characters..."
-                  />
-                </div>
-
-                {/* Filter Dropdowns */}
-                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3">
-                  <DropdownFilter
-                    label="Status"
-                    activeFilter={filters.status}
-                    options={statusOptions}
-                    onFilterChange={handleFilter}
-                    colorTheme="green"
-                  />
-
-                  <DropdownFilter
-                    label="Species"
-                    activeFilter={filters.species}
-                    options={speciesOptions}
-                    onFilterChange={handleSpeciesFilter}
-                    colorTheme="blue"
-                  />
-
-                  <DropdownFilter
-                    label="Gender"
-                    activeFilter={filters.gender}
-                    options={genderOptions}
-                    onFilterChange={handleGenderFilter}
-                    colorTheme="purple"
-                  />
-
-                  {/* Favorites Toggle Button */}
-                  <button
-                    onClick={handleFavoritesToggle}
-                    className={`
-                    px-3 py-2 rounded-lg border text-xs font-medium transition-all duration-300
-                    flex items-center gap-2
-                    ${
-                      filters.favoritesOnly
-                        ? 'transform scale-105 shadow-lg text-white font-semibold'
-                        : 'hover:scale-102 hover:shadow-md'
-                    }
-                  `}
-                    style={{
-                      backgroundColor: filters.favoritesOnly
-                        ? 'var(--primary)'
-                        : 'var(--card-bg)',
-                      borderColor: filters.favoritesOnly
-                        ? 'var(--primary)'
-                        : 'var(--card-border)',
-                      color: filters.favoritesOnly
-                        ? 'white'
-                        : 'var(--foreground)',
-                    }}
-                    onMouseEnter={(e) => {
-                      if (!filters.favoritesOnly) {
-                        e.currentTarget.style.borderColor = 'var(--primary)'
-                        e.currentTarget.style.color = 'var(--primary)'
-                      }
-                    }}
-                    onMouseLeave={(e) => {
-                      if (!filters.favoritesOnly) {
-                        e.currentTarget.style.borderColor = 'var(--card-border)'
-                        e.currentTarget.style.color = 'var(--foreground)'
-                      }
-                    }}
-                  >
-                    <Star className="w-3 h-3" />
-                    Favorites
-                  </button>
-
-                  {/* Clear Filters Button */}
-                  {(filters.name ||
-                    filters.status ||
-                    filters.species ||
-                    filters.gender ||
-                    filters.favoritesOnly) && (
-                    <button
-                      onClick={handleResetFilters}
-                      className="px-4 py-2 text-xs rounded-md border transition-all duration-300 hover:scale-105 hover:!bg-red-500 hover:!border-red-500 hover:!text-white"
-                      style={{
-                        color: 'var(--foreground-muted)',
-                        borderColor: 'var(--card-border)',
-                        backgroundColor: 'var(--card-bg)',
-                      }}
-                    >
-                      Clear
-                    </button>
-                  )}
-                </div>
-              </div>
+        <div className="container mx-auto px-4 text-center relative z-10">
+          {/* Portal Animation */}
+          <div ref={portalRef} className="w-40 h-40 mx-auto mb-8 relative">
+            <div className="absolute inset-0 rounded-full" style={{ 
+              background: 'conic-gradient(from 0deg, var(--primary), transparent, var(--primary))',
+              filter: 'blur(4px)'
+            }}></div>
+            <div className="absolute inset-4 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--background)' }}>
+              <span className="text-4xl font-bold dark:text-glow" style={{ color: 'var(--primary)' }}>R&M</span>
             </div>
-          </header>
+          </div>
 
-          {/* Error State */}
-          {error && (
-            <div className="text-center py-12">
-              <div className="rounded-lg p-6 max-w-md mx-auto glow-card dark:bg-red-900/20 dark:border-red-500/50 light:bg-red-50 light:border-red-200">
-                <h3 className="text-xl font-semibold mb-2 dark:text-red-400 dark:text-glow light:text-red-700">
-                  Oops! Something went wrong
-                </h3>
-                <p className="mb-4 dark:text-red-300 light:text-red-600">
-                  {error}
-                </p>
-                <button
-                  onClick={fetchCharacters}
-                  className="px-4 py-2 text-white rounded-lg transition-all duration-300 hover:scale-105 dark:bg-red-600 dark:hover:bg-red-500 dark:shadow-lg dark:shadow-red-500/50 light:bg-red-600 light:hover:bg-red-500 light:shadow-md"
-                >
-                  Try again
-                </button>
-              </div>
-            </div>
-          )}
+          <h1 className="hero-title text-6xl md:text-8xl font-bold mb-6 dark:text-glow" style={{ color: 'var(--foreground)' }}>
+            Rick & Morty
+            <br />
+            <span style={{ color: 'var(--primary)' }}>Explorer</span>
+          </h1>
 
-          {/* Loading State */}
-          {loading && (
-            <div className="space-y-8">
-              <CharacterGridSkeleton />
-            </div>
-          )}
+          <p className="hero-subtitle text-xl md:text-2xl mb-8 max-w-3xl mx-auto" style={{ color: 'var(--foreground-muted)' }}>
+            Dive into the multiverse and explore characters, episodes, and dimensions from the Rick and Morty universe, powered by science!
+          </p>
 
-          {/* Characters Grid */}
-          {!loading && !error && characters.length > 0 && (
-            <div className="space-y-8">
-              <motion.div
-                className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-                initial="hidden"
-                animate="visible"
-                variants={{
-                  visible: {
-                    transition: {
-                      staggerChildren: 0.05,
-                    },
-                  },
+          <div className="hero-buttons flex flex-col sm:flex-row gap-6 justify-center">
+            <Link
+              href="/character"
+              className="group flex items-center gap-3 px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 hover:scale-105 text-white"
+              style={{ backgroundColor: 'var(--primary)' }}
+            >
+              Explore Characters
+              <ArrowRight className="h-6 w-6 group-hover:translate-x-1 transition-transform" />
+            </Link>
+
+            <Link
+              href="/episodes"
+              className="flex items-center gap-3 px-8 py-4 rounded-lg border font-semibold text-lg transition-all duration-300 hover:scale-105"
+              style={{
+                backgroundColor: 'var(--card-bg)',
+                borderColor: 'var(--card-border)',
+                color: 'var(--foreground)'
+              }}
+            >
+              <Tv className="h-6 w-6" />
+              Browse Episodes
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Features Section */}
+      <section ref={featuresRef} className="py-20 px-4">
+        <div className="container mx-auto">
+          <h2 className="text-4xl md:text-5xl font-bold text-center mb-16 dark:text-glow" style={{ color: 'var(--foreground)' }}>
+            Features from Another <span style={{ color: 'var(--primary)' }}>Dimension</span>
+          </h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
+            {features.map((feature, index) => (
+              <div 
+                key={index} 
+                ref={(el) => {
+                  if (el && !featureCardsRef.current.includes(el)) {
+                    featureCardsRef.current[index] = el
+                  }
                 }}
-              >
-                <AnimatePresence mode="popLayout">
-                  {characters.map((character, index) => (
-                    <CharacterCard 
-                      key={character.id} 
-                      character={character} 
-                      priority={index < 4} // First 4 characters get priority loading
-                    />
-                  ))}
-                </AnimatePresence>
-              </motion.div>
-
-              {/* Only show pagination when not filtering favorites */}
-              {!filters.favoritesOnly && (
-                <Pagination
-                  currentPage={filters.page}
-                  totalPages={totalPages}
-                  hasNextPage={hasNextPage}
-                  onPrevious={handlePrevPage}
-                  onNext={handleNextPage}
-                  onFirst={handleFirstPage}
-                  onLast={handleLastPage}
-                  loading={loading}
-                />
-              )}
-            </div>
-          )}
-
-          {/* Empty State */}
-          {!loading && !error && characters.length === 0 && (
-            <div className="text-center py-12">
-              <div
-                className="max-w-md mx-auto glow-card rounded-lg p-6"
+                className="feature-card glow-card rounded-2xl p-8 text-center transition-all duration-300 hover:scale-105" 
                 style={{ backgroundColor: 'var(--card-bg)' }}
               >
-                <h3
-                  className="text-xl font-semibold mb-2 dark:text-glow"
-                  style={{ color: 'var(--foreground)' }}
-                >
-                  No characters found
+                <div className="w-16 h-16 mx-auto mb-6 rounded-full flex items-center justify-center" style={{ backgroundColor: 'var(--primary)20', color: 'var(--primary)' }}>
+                  {feature.icon}
+                </div>
+                <h3 className="text-xl font-semibold mb-4 dark:text-glow" style={{ color: 'var(--foreground)' }}>
+                  {feature.title}
                 </h3>
-                <p
-                  className="mb-4"
-                  style={{ color: 'var(--foreground-muted)' }}
-                >
-                  Try adjusting your search or filter criteria
+                <p style={{ color: 'var(--foreground-muted)' }}>
+                  {feature.description}
                 </p>
-                <button
-                  onClick={handleResetFilters}
-                  className="px-4 py-2 text-white rounded-lg transition-all duration-300 hover:scale-105 dark:shadow-lg dark:shadow-emerald-500/50 light:shadow-md"
-                  style={{ backgroundColor: 'var(--primary)' }}
-                >
-                  Reset filters
-                </button>
               </div>
-            </div>
-          )}
+            ))}
+          </div>
         </div>
-      </div>
-    </PageTransition>
-  );
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 px-4">
+        <div className="container mx-auto text-center">
+          <div className="glow-card rounded-3xl p-12 max-w-4xl mx-auto" style={{ backgroundColor: 'var(--card-bg)' }}>
+            <h2 className="text-3xl md:text-4xl font-bold mb-6 dark:text-glow" style={{ color: 'var(--foreground)' }}>
+              Ready to Explore the Multiverse?
+            </h2>
+            <p className="text-lg mb-8" style={{ color: 'var(--foreground-muted)' }}>
+              Join millions of fans discovering characters, episodes, and Easter eggs from the Rick and Morty universe.
+            </p>
+            <Link
+              href="/character"
+              className="inline-flex items-center gap-3 px-10 py-5 rounded-lg font-semibold text-xl transition-all duration-300 hover:scale-105 text-white"
+              style={{ backgroundColor: 'var(--primary)' }}
+            >
+              Start Exploring Now
+              <ArrowRight className="h-7 w-7" />
+            </Link>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
 }

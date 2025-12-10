@@ -7,7 +7,6 @@ import { ArrowLeft, Calendar, Users, Tv } from 'lucide-react'
 import { Episode, Character } from '@/types/types'
 import { EpisodeApiService, CharacterApiService } from '@/services'
 import { CharacterCard } from '@/components/character/character-card'
-import { ThemeToggle } from '@/components/layout/theme-toggle'
 import { PageTransition } from '@/components/common/page-transition'
 
 export default function EpisodeDetail() {
@@ -23,6 +22,11 @@ export default function EpisodeDetail() {
     try {
       setLoading(true)
       setError(null)
+
+      // Validate episode ID
+      if (isNaN(episodeId) || episodeId < 1) {
+        throw new Error('Invalid episode ID')
+      }
       
       // Fetch episode details
       const episodeData = await EpisodeApiService.getEpisode(episodeId)
@@ -51,9 +55,7 @@ export default function EpisodeDetail() {
   }, [episodeId])
 
   useEffect(() => {
-    if (episodeId) {
-      fetchEpisode()
-    }
+    fetchEpisode()
   }, [episodeId, fetchEpisode])
 
   const getSeasonFromEpisode = (episodeCode: string): number => {
@@ -103,7 +105,7 @@ export default function EpisodeDetail() {
       <div className="min-h-screen transition-colors duration-500" style={{ backgroundColor: 'var(--background)' }}>
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
-        <div className="flex justify-between items-start mb-8">
+        <div className="mb-8">
           <Link 
             href="/episodes"
             className="flex items-center gap-2 transition-all duration-300 hover:scale-105 dark:hover:text-glow"
@@ -112,7 +114,6 @@ export default function EpisodeDetail() {
             <ArrowLeft className="h-5 w-5" />
             Back to Episodes
           </Link>
-          <ThemeToggle />
         </div>
 
         {/* Episode Header */}

@@ -19,7 +19,13 @@ export default function CharacterDetail() {
   const characterId = parseInt(params.id as string)
 
   useEffect(() => {
-    if (characterId) {
+    // Validate character ID before making API call
+    if (isNaN(characterId) || characterId < 1) {
+      // Set error state in the store
+      useCharacterStore.getState().setError('Invalid character ID')
+      useCharacterStore.getState().setLoading(false)
+      useCharacterStore.getState().setCurrentCharacter(null)
+    } else {
       fetchCharacter(characterId)
     }
     // Scroll to top when navigating to character detail
@@ -27,7 +33,7 @@ export default function CharacterDetail() {
   }, [characterId, fetchCharacter])
 
   const handleBack = () => {
-    router.push('/')
+    router.push('/character')
   }
 
   if (loading) {
