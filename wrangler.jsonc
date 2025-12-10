@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "rick-and-morty-character-explorer",
+  "name": "rick-and-morty-fe",
   "main": ".open-next/worker.js",
   "compatibility_date": "2025-12-09",
   "compatibility_flags": ["nodejs_compat"],
